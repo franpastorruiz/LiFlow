@@ -1,0 +1,18 @@
+[project]
+name = "liflow"
+version = "0.1.0"
+description = "Personal tracking through validated LLM extraction"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi[standard]>=0.141,<1",
+    "openai>=3,<4",
+    "python-dotenv>=1,<2",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["apps/api/tests"]
+pythonpath = ["apps/api"]
+addopts = "-m 'not openai_live'"
+markers = [
+    "openai_live: makes a real request to OpenAI and is disabled by default",
+]
