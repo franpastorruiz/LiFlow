@@ -23,6 +23,7 @@ class Settings:
     extraction_provider: str
     openai_api_key: str | None
     openai_model: str | None
+    database_url: str | None
 
     @classmethod
     def from_environment(cls) -> "Settings":
@@ -38,4 +39,4 @@ class Settings:
         if provider == "openai" and not model:
             raise ConfigurationError("OPENAI_MODEL is required for the OpenAI provider.")
 
-        return cls(provider, api_key, model)
+        return cls(provider, api_key, model, os.getenv("DATABASE_URL"))

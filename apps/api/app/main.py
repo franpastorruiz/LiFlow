@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from app.api.extractions import router as extraction_router
+from app.api.trackers import router as tracker_router
 from app.schemas.event import LifeEvent
 
 app = FastAPI(
@@ -10,6 +11,7 @@ app = FastAPI(
 )
 
 app.include_router(extraction_router)
+app.include_router(tracker_router)
 
 
 @app.get("/health")

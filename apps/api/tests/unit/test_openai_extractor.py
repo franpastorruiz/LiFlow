@@ -50,6 +50,7 @@ def test_openai_extractor_uses_structured_output_and_returns_multiple_events() -
     result = ExtractionResult(
         events=[
             {
+                "activity_key": "study",
                 "activity": "study",
                 "date": "2026-09-11",
                 "observations": [
@@ -57,6 +58,7 @@ def test_openai_extractor_uses_structured_output_and_returns_multiple_events() -
                 ],
             },
             {
+                "activity_key": "exercise",
                 "activity": "exercise",
                 "date": "2026-09-11",
                 "observations": [
@@ -86,6 +88,7 @@ def test_openai_extractor_uses_structured_output_and_returns_multiple_events() -
     assert extracted.unparsed_text == ["No se indicó la asignatura de los ejercicios."]
     assert client.responses.call_kwargs["store"] is False
     assert client.responses.call_kwargs["text_format"] is ExtractionResult
+    assert "emit a default_request automatically" in client.responses.call_kwargs["instructions"]
 
 
 def test_openai_configuration_requires_a_key(

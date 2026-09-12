@@ -7,6 +7,7 @@ from app.schemas.tracker import MetricDefinition, TrackerContext
 
 def test_event_accepts_multiple_dynamic_observations() -> None:
     event = LifeEvent(
+        activity_key="study",
         activity="study",
         date="2026-09-11",
         observations=[
@@ -43,6 +44,7 @@ def test_metric_definition_accepts_a_new_unit_without_code_changes() -> None:
 def test_event_rejects_repeated_metric_observations() -> None:
     with pytest.raises(ValidationError, match="same metric twice"):
         LifeEvent(
+            activity_key="study",
             activity="study",
             date="2026-09-11",
             observations=[
@@ -56,6 +58,18 @@ def test_event_rejects_repeated_metric_observations() -> None:
                     "value": 30,
                     "unit": "minutes",
                 },
+            ],
+        )
+
+
+def test_event_rejects_an_empty_string_as_an_observation_value() -> None:
+    with pytest.raises(ValidationError):
+        LifeEvent(
+            activity_key="bjj",
+            activity="BJJ",
+            date="2026-09-12",
+            observations=[
+                {"metric_key": "duration", "value": "", "unit": "hours"}
             ],
         )
 

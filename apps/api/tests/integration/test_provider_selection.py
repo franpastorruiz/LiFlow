@@ -1,9 +1,17 @@
+import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 
 from app.api.dependencies import get_extractor
+from app.db.base import Base
+from app.db.session import get_session
 from app.extraction.errors import ExtractionProviderError
 from app.main import app
 from app.schemas.extraction import ExtractionResult
+from app.schemas.persistence import TrackerCreate
+from app.services.persistence import create_tracker
 
 
 def valid_request_payload() -> dict:
@@ -11,11 +19,7 @@ def valid_request_payload() -> dict:
         "text": "Texto de prueba.",
         "reference_date": "2026-09-11",
         "timezone": "Europe/Madrid",
-        "tracker": {
-            "tracker_key": "university",
-            "display_name": "Universidad",
-            "known_metrics": [],
-        },
+        "tracker_key": "university",
     }
 
 
@@ -27,6 +31,23 @@ class ConfiguredExtractor:
 class FailingExtractor:
     def extract(self, request: object) -> ExtractionResult:
         raise ExtractionProviderError("Provider unavailable")
+
+
+@pytest.fixture(autouse=True)
+def database_override() -> object:
+    engine = create_engine(
+        "sqlite+pysqlite://",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    Base.metadata.create_all(engine)
+    session = sessionmaker(bind=engine, expire_on_commit=False)()
+    create_tracker(session, TrackerCreate(tracker_key="university", display_name="Universidad"))
+    app.dependency_overrides[get_session] = lambda: session
+    yield
+    app.dependency_overrides.clear()
+    session.close()
+    Base.metadata.drop_all(engine)
 
 
 def test_endpoint_uses_the_injected_extractor() -> None:

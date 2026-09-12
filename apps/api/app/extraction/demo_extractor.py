@@ -54,6 +54,7 @@ class DemoExtractor:
                 )
 
             event = LifeEvent(
+                activity_key="study",
                 activity="study",
                 date=request.reference_date,
                 observations=[
